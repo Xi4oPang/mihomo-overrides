@@ -1,0 +1,87 @@
+prepend-rules:
+  # 向日葵
+  - PROCESS-NAME,SunloginClient.exe,DIRECT
+  - PROCESS-NAME,SunloginService.exe,DIRECT
+  - PROCESS-NAME,SunloginRemote.exe,DIRECT
+  - PROCESS-NAME,SunloginHost.exe,DIRECT
+  - DOMAIN-SUFFIX,oray.com,DIRECT
+  - DOMAIN-SUFFIX,oray.net,DIRECT
+  - DOMAIN-SUFFIX,sunlogin.net,DIRECT
+
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+
+  # 默认海外 DNS
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+  proxy-server-nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+  # 国内域名走国内 DNS
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+
+    # 你特别关心的国内站，可额外点名
+    "+.bilibili.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.biliapi.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.bilivideo.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.qq.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.wechat.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.jd.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.taobao.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.tmall.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.douyin.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.iqiyi.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "+.youku.com":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+
+  # 这些域名返回真实 IP，避免 fake-ip 搞坏软件/国内服务
+  fake-ip-filter-mode: rule
+  fake-ip-filter:
+    - GEOSITE,private,real-ip
+    - GEOSITE,cn,real-ip
+    - DOMAIN-SUFFIX,oray.com,real-ip
+    - DOMAIN-SUFFIX,oray.net,real-ip
+    - DOMAIN-SUFFIX,sunlogin.net,real-ip
+    - DOMAIN-SUFFIX,bilibili.com,real-ip
+    - DOMAIN-SUFFIX,biliapi.com,real-ip
+    - DOMAIN-SUFFIX,bilivideo.com,real-ip
+    - DOMAIN-SUFFIX,qq.com,real-ip
+    - DOMAIN-SUFFIX,wechat.com,real-ip
+    - DOMAIN-SUFFIX,jd.com,real-ip
+    - DOMAIN-SUFFIX,taobao.com,real-ip
+    - DOMAIN-SUFFIX,tmall.com,real-ip
+    - DOMAIN-SUFFIX,douyin.com,real-ip
+    - MATCH,fake-ip
