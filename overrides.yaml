@@ -3,14 +3,14 @@ prepend-proxy-groups:
     type: relay
     proxies:
       - "🇺🇸美国01"
-      - "🇺🇸美国11 [COX家宽]"
+      - "🇺🇸美国11 [COX家宽] [2x]"
 
   - name: AI
     type: select
     proxies:
       - AI-链式
       - "🇺🇸美国01"
-      - "🇺🇸美国11 [COX家宽]"
+      - "🇺🇸美国11 [COX家宽] [2x]"
 
 prepend-rules:
   # 向日葵
