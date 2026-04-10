@@ -1,5 +1,4 @@
 prepend-rules:
-  # 向日葵
   - PROCESS-NAME,SunloginClient.exe,DIRECT
   - PROCESS-NAME,SunloginService.exe,DIRECT
   - PROCESS-NAME,SunloginRemote.exe,DIRECT
@@ -11,27 +10,20 @@ prepend-rules:
   - IP-CIDR,103.46.128.0/22,DIRECT,no-resolve
 
 dns:
-  nameserver:
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
-    
-  # 只补充“国内域名用国内 DNS”
   direct-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
 
   nameserver-policy:
-    "geosite:cn,private":
+    geosite:cn,private:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
-
-    # 你自己特别在意、且之前容易异常的国内站
-    "+.bilibili.com":
+    <+.bilibili.com>:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
-    "+.biliapi.com":
+    <+.biliapi.com>:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
-    "+.bilivideo.com":
+    <+.bilivideo.com>:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
