@@ -1,3 +1,17 @@
+prepend-proxy-groups:
+  - name: AI-链式
+    type: relay
+    proxies:
+      - "🇺🇸美国01"
+      - "🇺🇸美国11 [COX家宽]"
+
+  - name: AI
+    type: select
+    proxies:
+      - AI-链式
+      - "🇺🇸美国01"
+      - "🇺🇸美国11 [COX家宽]"
+
 prepend-rules:
   # 向日葵
   - PROCESS-NAME,SunloginClient.exe,DIRECT
@@ -9,6 +23,15 @@ prepend-rules:
   - DOMAIN-SUFFIX,sunlogin.net,DIRECT
   - IP-CIDR,153.3.236.0/24,DIRECT,no-resolve
   - IP-CIDR,103.46.128.0/22,DIRECT,no-resolve
+
+  # GPT / Claude
+  - DOMAIN-SUFFIX,openai.com,AI
+  - DOMAIN-SUFFIX,chatgpt.com,AI
+  - DOMAIN-SUFFIX,oaistatic.com,AI
+  - DOMAIN-SUFFIX,oaiusercontent.com,AI
+  - DOMAIN-SUFFIX,anthropic.com,AI
+  - DOMAIN-SUFFIX,claude.ai,AI
+  - DOMAIN-SUFFIX,claudeusercontent.com,AI
 
 dns:
   direct-nameserver:
@@ -29,3 +52,25 @@ dns:
     <+.bilivideo.com>:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
+
+    <+.openai.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.chatgpt.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.oaistatic.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.oaiusercontent.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.anthropic.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.claude.ai>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    <+.claudeusercontent.com>:
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
