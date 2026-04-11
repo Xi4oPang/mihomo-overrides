@@ -1,18 +1,4 @@
-prepend-proxy-groups:
-  - name: AI-链式
-    type: relay
-    proxies:
-      - "🇺🇸美国01"
-      - "🇺🇸美国11 [COX家宽] [2x]"
-
-  - name: AI
-    type: select
-    proxies:
-      - AI-链式
-      - "🇺🇸美国01"
-      - "🇺🇸美国11 [COX家宽] [2x]"
-
-prepend-rules:
+ +rules:
   # 向日葵
   - PROCESS-NAME,SunloginClient.exe,DIRECT
   - PROCESS-NAME,SunloginService.exe,DIRECT
