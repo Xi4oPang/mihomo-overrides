@@ -1,4 +1,4 @@
- +rules:
++rules:
   # 向日葵
   - PROCESS-NAME,SunloginClient.exe,DIRECT
   - PROCESS-NAME,SunloginService.exe,DIRECT
