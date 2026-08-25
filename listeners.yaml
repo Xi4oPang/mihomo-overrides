@@ -1,0 +1,24 @@
+listeners:
+  - name: listener-us-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10001
+    proxy: MY-LISTENER-US-HOME
+
+  - name: listener-sg-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10002
+    proxy: MY-LISTENER-SG-HOME
+
+  - name: listener-jp-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10003
+    proxy: MY-LISTENER-JP-HOME
+
+  - name: listener-hk-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10004
+    proxy: MY-LISTENER-HK-HOME
