@@ -56,7 +56,11 @@ function main(config) {
   const home = pick(name =>
     isHome(name)
   );
-
+  // 所有非家宽 / 非住宅节点
+  const nonHome = pick(name =>
+    !isHome(name)
+  );
+  
   // 家宽
   const usHome = pick(name =>
     isUS(name) && isHome(name)
@@ -141,7 +145,10 @@ function main(config) {
     home
   );
 
-
+  addGroup(
+    "MY-NON-HOME",
+    nonHome
+  );
   // ---------- 美国 ----------
 
   addGroup(
