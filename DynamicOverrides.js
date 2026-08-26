@@ -102,6 +102,11 @@ function main(config) {
 
   const groups = [];
 
+  groups.push({
+    name: "MY-DIRECT",
+    type: "select",
+    proxies: ["DIRECT"]
+  });
 
   // =========================================================
   // 6. 辅助：只有存在节点时才建立动态业务组
