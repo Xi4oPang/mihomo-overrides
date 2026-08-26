@@ -1,4 +1,8 @@
 listeners:
+  # =========================
+  # 家宽
+  # =========================
+
   - name: listener-us-home
     type: mixed
     listen: 127.0.0.1
@@ -23,8 +27,42 @@ listeners:
     port: 10004
     proxy: MY-LISTENER-HK-HOME
 
+
+  # =========================
+  # 直连
+  # =========================
+
   - name: listener-direct
     type: mixed
     listen: 127.0.0.1
     port: 10010
     proxy: MY-DIRECT
+
+
+  # =========================
+  # 普通节点（排除家宽）
+  # =========================
+
+  - name: listener-us
+    type: mixed
+    listen: 127.0.0.1
+    port: 10101
+    proxy: MY-LISTENER-US
+
+  - name: listener-sg
+    type: mixed
+    listen: 127.0.0.1
+    port: 10102
+    proxy: MY-LISTENER-SG
+
+  - name: listener-jp
+    type: mixed
+    listen: 127.0.0.1
+    port: 10103
+    proxy: MY-LISTENER-JP
+
+  - name: listener-hk
+    type: mixed
+    listen: 127.0.0.1
+    port: 10104
+    proxy: MY-LISTENER-HK
