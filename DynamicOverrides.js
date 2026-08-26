@@ -331,7 +331,7 @@ function main(config) {
     "PROCESS-NAME,firefox.exe,FIREFOX-PROXY",
 
     // Vivaldi 永远进入自己的代理选择组
-    "PROCESS-NAME,vivaldi.exe,VIVALDI-PROXY",
+    //"PROCESS-NAME,vivaldi.exe,VIVALDI-PROXY",
 
 
     // Bitwarden / Vaultwarden 强制直连
