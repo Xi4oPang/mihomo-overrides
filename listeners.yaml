@@ -27,4 +27,4 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10010
-    proxy: DIRECT
+    proxy: MY-DIRECT
