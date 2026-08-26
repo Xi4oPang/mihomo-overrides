@@ -47,22 +47,22 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10101
-    proxy: MY-LISTENER-US
+    proxy: MY-US
 
   - name: listener-sg
     type: mixed
     listen: 127.0.0.1
     port: 10102
-    proxy: MY-LISTENER-SG
+    proxy: MY-SG
 
   - name: listener-jp
     type: mixed
     listen: 127.0.0.1
     port: 10103
-    proxy: MY-LISTENER-JP
+    proxy: MY-JP
 
   - name: listener-hk
     type: mixed
     listen: 127.0.0.1
     port: 10104
-    proxy: MY-LISTENER-HK
+    proxy: MY-HK
