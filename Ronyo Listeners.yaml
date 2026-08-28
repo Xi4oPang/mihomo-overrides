@@ -74,7 +74,7 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10105
-    proxy: MY-LISTENER-UK
+    proxy: MY-UK
 
 
   # =========================
@@ -85,7 +85,7 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10106
-    proxy: MY-LISTENER-TW
+    proxy: MY-TW
 
 
   # =========================
@@ -96,7 +96,7 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10107
-    proxy: MY-LISTENER-KR
+    proxy: MY-KR
 
 
   # =========================
@@ -107,7 +107,7 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10108
-    proxy: MY-LISTENER-DE
+    proxy: MY-DE
 
 
   # =========================
@@ -118,7 +118,7 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10109
-    proxy: MY-LISTENER-CA
+    proxy: MY-CA
 
 
   # =========================
@@ -129,4 +129,4 @@ listeners:
     type: mixed
     listen: 127.0.0.1
     port: 10110
-    proxy: MY-LISTENER-AU
+    proxy: MY-AU
