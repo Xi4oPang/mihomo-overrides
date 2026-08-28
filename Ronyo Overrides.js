@@ -37,7 +37,30 @@ function main(config) {
   // 香港
   const isHK = name =>
     /(香港|🇭🇰|\.hk(?:$|[.\s|_-]))/i.test(name);
-
+  
+  // 英国
+  const isUK = name =>
+    /(英国|🇬🇧|United\s*Kingdom|Britain|\.uk(?:$|[.\s|_-]))/i.test(name);
+  
+  // 台湾
+  const isTW = name =>
+    /(台湾|台灣|🇹🇼|Taiwan|\.tw(?:$|[.\s|_-]))/i.test(name);
+  
+  // 韩国
+  const isKR = name =>
+    /(韩国|韓國|🇰🇷|Korea|\.kr(?:$|[.\s|_-]))/i.test(name);
+  
+  // 德国
+  const isDE = name =>
+    /(德国|德國|🇩🇪|Germany|\.de(?:$|[.\s|_-]))/i.test(name);
+  
+  // 加拿大
+  const isCA = name =>
+    /(加拿大|🇨🇦|Canada|\.ca(?:$|[.\s|_-]))/i.test(name);
+  
+  // 澳大利亚
+  const isAU = name =>
+    /(澳大利亚|澳洲|🇦🇺|Australia|\.au(?:$|[.\s|_-]))/i.test(name);
 
   // =========================================================
   // 3. 辅助函数
@@ -95,7 +118,29 @@ function main(config) {
     isHK(name) && !isHome(name)
   );
 
-
+  const uk = pick(name =>
+    isUK(name) && !isHome(name)
+  );
+  
+  const tw = pick(name =>
+    isTW(name) && !isHome(name)
+  );
+  
+  const kr = pick(name =>
+    isKR(name) && !isHome(name)
+  );
+  
+  const de = pick(name =>
+    isDE(name) && !isHome(name)
+  );
+  
+  const ca = pick(name =>
+    isCA(name) && !isHome(name)
+  );
+  
+  const au = pick(name =>
+    isAU(name) && !isHome(name)
+  );
   // =========================================================
   // 5. 初始化 proxy-groups
   // =========================================================
@@ -200,7 +245,35 @@ function main(config) {
     hkHome
   );
 
-
+  addGroup(
+    "MY-UK",
+    uk
+  );
+  
+  addGroup(
+    "MY-TW",
+    tw
+  );
+  
+  addGroup(
+    "MY-KR",
+    kr
+  );
+  
+  addGroup(
+    "MY-DE",
+    de
+  );
+  
+  addGroup(
+    "MY-CA",
+    ca
+  );
+  
+  addGroup(
+    "MY-AU",
+    au
+  );
   // =========================================================
   // 8. Firefox / Vivaldi 永久入口组
   // =========================================================
