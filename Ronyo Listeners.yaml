@@ -66,3 +66,67 @@ listeners:
     listen: 127.0.0.1
     port: 10104
     proxy: MY-HK
+   # =========================
+  # 英国普通节点
+  # =========================
+
+  - name: listener-uk
+    type: mixed
+    listen: 127.0.0.1
+    port: 10105
+    proxy: MY-LISTENER-UK
+
+
+  # =========================
+  # 台湾普通节点
+  # =========================
+
+  - name: listener-tw
+    type: mixed
+    listen: 127.0.0.1
+    port: 10106
+    proxy: MY-LISTENER-TW
+
+
+  # =========================
+  # 韩国普通节点
+  # =========================
+
+  - name: listener-kr
+    type: mixed
+    listen: 127.0.0.1
+    port: 10107
+    proxy: MY-LISTENER-KR
+
+
+  # =========================
+  # 德国普通节点
+  # =========================
+
+  - name: listener-de
+    type: mixed
+    listen: 127.0.0.1
+    port: 10108
+    proxy: MY-LISTENER-DE
+
+
+  # =========================
+  # 加拿大普通节点
+  # =========================
+
+  - name: listener-ca
+    type: mixed
+    listen: 127.0.0.1
+    port: 10109
+    proxy: MY-LISTENER-CA
+
+
+  # =========================
+  # 澳大利亚普通节点
+  # =========================
+
+  - name: listener-au
+    type: mixed
+    listen: 127.0.0.1
+    port: 10110
+    proxy: MY-LISTENER-AU
