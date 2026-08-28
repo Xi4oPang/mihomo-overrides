@@ -320,8 +320,9 @@ function main(config) {
   );
 
 
-  // =========================================================
+ // =========================================================
   // 11. 保留当前订阅原始规则
+  //     但是删除原订阅最终 MATCH
   // =========================================================
 
   const originalRules =
@@ -329,13 +330,29 @@ function main(config) {
       ? config.rules
       : [];
 
+  // 保留原机场的所有正常分流规则，
+  // 只删除它自己的最终 MATCH。
+  //
+  // 例如：
+  // MATCH,DIRECT
+  // MATCH,Proxy
+  //
+  // 最终统一由我们自己的 MY-ALL 负责兜底。
+  const preservedRules = originalRules.filter(rule => {
+    if (typeof rule !== "string") {
+      return true;
+    }
+
+    return !/^\s*MATCH\s*,/i.test(rule);
+  });
+
 
   // =========================================================
   // 12. 自定义进程规则放最前面
   // =========================================================
 
+  
   config.rules = [
-
     // Edge 永远国内直连
     "PROCESS-NAME,msedge.exe,DIRECT",
 
@@ -345,27 +362,41 @@ function main(config) {
     // Vivaldi 永远进入自己的代理选择组
     //"PROCESS-NAME,vivaldi.exe,VIVALDI-PROXY",
 
-
     // Bitwarden / Vaultwarden 强制直连
     "DOMAIN,mm.hhh999.top,DIRECT",
     "IP-CIDR,113.205.140.12/32,DIRECT,no-resolve",
     "IP-CIDR,219.152.54.195/32,DIRECT,no-resolve",
     "IP-CIDR,192.168.18.153/32,DIRECT,no-resolve",
-    //向日葵
+
+    // 向日葵
     "PROCESS-NAME,SunloginClient.exe,DIRECT",
     "PROCESS-NAME,SunloginService.exe,DIRECT",
     "PROCESS-NAME,SunloginRemote.exe,DIRECT",
     "PROCESS-NAME,SunloginHost.exe,DIRECT",
+
     "DOMAIN-SUFFIX,oray.com,DIRECT",
     "DOMAIN-SUFFIX,oray.net,DIRECT",
     "DOMAIN-SUFFIX,sunlogin.net,DIRECT",
+
     "IP-CIDR,153.3.236.0/24,DIRECT,no-resolve",
     "IP-CIDR,103.46.128.0/22,DIRECT,no-resolve",
+
     "DOMAIN-SUFFIX,ipvtesting.hgtcgroup.com,DIRECT",
 
+    // 保留融合订阅原本的分流规则
+    // 但已经删除它原来的 MATCH xxx
+    ...preservedRules,
 
-    // 最后继续使用机场原有规则
-    ...originalRules
+    // =====================================================
+    // 最终兜底
+    //
+    // 所有前面没有匹配到的流量：
+    // Telegram / Discord / Google / GitHub / ChatGPT ...
+    // 统一进入 MY-ALL。
+    //
+    // MY-ALL 中的实际节点仍然由你自己选择。
+    // =====================================================
+    "MATCH,MY-ALL"
   ];
 
 
