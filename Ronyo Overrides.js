@@ -426,6 +426,8 @@ function main(config) {
 
   
   config.rules = [
+    // Claude 独立 App → 美国家宽
+    "PROCESS-NAME,Claude.exe,MY-LISTENER-US-HOME",
     // Edge 永远国内直连
     "PROCESS-NAME,msedge.exe,DIRECT",
 
