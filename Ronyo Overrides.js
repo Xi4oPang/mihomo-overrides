@@ -2,7 +2,7 @@ function main(config) {
   config["find-process-mode"] = "always";
 
   // =========================================================
-  // 1. 读取当前订阅的所有真实节点
+  // 1. 读取当前订阅所有真实节点
   // =========================================================
 
   const proxies = Array.isArray(config.proxies)
@@ -22,45 +22,56 @@ function main(config) {
   const isHome = name =>
     /(家宽|住宅\s*IP|住宅|Residential|Home\s*IP|Home)/i.test(name);
 
-  // 美国
+
+  // ---------- 美国 ----------
   const isUS = name =>
-    /(美国|🇺🇸|\.us(?:$|[.\s|_-]))/i.test(name);
+    /(美国|🇺🇸|United\s*States|USA|\.us(?:$|[.\s|_-]))/i.test(name);
 
-  // 新加坡
+
+  // ---------- 新加坡 ----------
   const isSG = name =>
-    /(新加坡|狮城|🇸🇬|\.sg(?:$|[.\s|_-]))/i.test(name);
+    /(新加坡|狮城|🇸🇬|Singapore|\.sg(?:$|[.\s|_-]))/i.test(name);
 
-  // 日本
+
+  // ---------- 日本 ----------
   const isJP = name =>
-    /(日本|🇯🇵|\.jp(?:$|[.\s|_-]))/i.test(name);
+    /(日本|🇯🇵|Japan|\.jp(?:$|[.\s|_-]))/i.test(name);
 
-  // 香港
+
+  // ---------- 香港 ----------
   const isHK = name =>
-    /(香港|🇭🇰|\.hk(?:$|[.\s|_-]))/i.test(name);
-  
-  // 英国
+    /(香港|🇭🇰|Hong\s*Kong|\.hk(?:$|[.\s|_-]))/i.test(name);
+
+
+  // ---------- 英国 ----------
   const isUK = name =>
-    /(英国|🇬🇧|United\s*Kingdom|Britain|\.uk(?:$|[.\s|_-]))/i.test(name);
-  
-  // 台湾
+    /(英国|🇬🇧|United\s*Kingdom|Britain|England|\.uk(?:$|[.\s|_-]))/i.test(name);
+
+
+  // ---------- 台湾 ----------
   const isTW = name =>
     /(台湾|台灣|🇹🇼|Taiwan|\.tw(?:$|[.\s|_-]))/i.test(name);
-  
-  // 韩国
+
+
+  // ---------- 韩国 ----------
   const isKR = name =>
-    /(韩国|韓國|🇰🇷|Korea|\.kr(?:$|[.\s|_-]))/i.test(name);
-  
-  // 德国
+    /(韩国|韓國|🇰🇷|South\s*Korea|Korea|\.kr(?:$|[.\s|_-]))/i.test(name);
+
+
+  // ---------- 德国 ----------
   const isDE = name =>
     /(德国|德國|🇩🇪|Germany|\.de(?:$|[.\s|_-]))/i.test(name);
-  
-  // 加拿大
+
+
+  // ---------- 加拿大 ----------
   const isCA = name =>
     /(加拿大|🇨🇦|Canada|\.ca(?:$|[.\s|_-]))/i.test(name);
-  
-  // 澳大利亚
+
+
+  // ---------- 澳大利亚 ----------
   const isAU = name =>
     /(澳大利亚|澳洲|🇦🇺|Australia|\.au(?:$|[.\s|_-]))/i.test(name);
+
 
   // =========================================================
   // 3. 辅助函数
@@ -71,20 +82,29 @@ function main(config) {
 
 
   // =========================================================
-  // 4. 动态分类节点
+  // 4. 动态分类
   // =========================================================
 
   const all = [...proxyNames];
 
+
+  // =========================================================
+  // 所有家宽 / 所有非家宽
+  // =========================================================
+
   const home = pick(name =>
     isHome(name)
   );
-  // 所有非家宽 / 非住宅节点
+
   const nonHome = pick(name =>
     !isHome(name)
   );
-  
-  // 家宽
+
+
+  // =========================================================
+  // 5. 各国家家宽节点
+  // =========================================================
+
   const usHome = pick(name =>
     isUS(name) && isHome(name)
   );
@@ -101,7 +121,37 @@ function main(config) {
     isHK(name) && isHome(name)
   );
 
-  // 普通节点：明确排除家宽
+  const ukHome = pick(name =>
+    isUK(name) && isHome(name)
+  );
+
+  const twHome = pick(name =>
+    isTW(name) && isHome(name)
+  );
+
+  const krHome = pick(name =>
+    isKR(name) && isHome(name)
+  );
+
+  const deHome = pick(name =>
+    isDE(name) && isHome(name)
+  );
+
+  const caHome = pick(name =>
+    isCA(name) && isHome(name)
+  );
+
+  const auHome = pick(name =>
+    isAU(name) && isHome(name)
+  );
+
+
+  // =========================================================
+  // 6. 各国家普通节点
+  //
+  // 明确排除家宽
+  // =========================================================
+
   const us = pick(name =>
     isUS(name) && !isHome(name)
   );
@@ -121,28 +171,30 @@ function main(config) {
   const uk = pick(name =>
     isUK(name) && !isHome(name)
   );
-  
+
   const tw = pick(name =>
     isTW(name) && !isHome(name)
   );
-  
+
   const kr = pick(name =>
     isKR(name) && !isHome(name)
   );
-  
+
   const de = pick(name =>
     isDE(name) && !isHome(name)
   );
-  
+
   const ca = pick(name =>
     isCA(name) && !isHome(name)
   );
-  
+
   const au = pick(name =>
     isAU(name) && !isHome(name)
   );
+
+
   // =========================================================
-  // 5. 初始化 proxy-groups
+  // 7. 初始化 proxy-groups
   // =========================================================
 
   if (!Array.isArray(config["proxy-groups"])) {
@@ -151,14 +203,20 @@ function main(config) {
 
   const groups = [];
 
+
+  // =========================================================
+  // 永久 DIRECT 入口
+  // =========================================================
+
   groups.push({
     name: "MY-DIRECT",
     type: "select",
     proxies: ["DIRECT"]
   });
 
+
   // =========================================================
-  // 6. 辅助：只有存在节点时才建立动态业务组
+  // 8. 辅助：有节点才建立动态业务组
   // =========================================================
 
   function addGroup(name, nodes) {
@@ -177,7 +235,7 @@ function main(config) {
 
 
   // =========================================================
-  // 7. 动态业务组
+  // 9. 全局动态组
   // =========================================================
 
   addGroup(
@@ -194,7 +252,11 @@ function main(config) {
     "MY-NON-HOME",
     nonHome
   );
-  // ---------- 美国 ----------
+
+
+  // =========================================================
+  // 10. 美国
+  // =========================================================
 
   addGroup(
     "MY-US",
@@ -207,7 +269,9 @@ function main(config) {
   );
 
 
-  // ---------- 新加坡 ----------
+  // =========================================================
+  // 11. 新加坡
+  // =========================================================
 
   addGroup(
     "MY-SG",
@@ -220,7 +284,9 @@ function main(config) {
   );
 
 
-  // ---------- 日本 ----------
+  // =========================================================
+  // 12. 日本
+  // =========================================================
 
   addGroup(
     "MY-JP",
@@ -233,7 +299,9 @@ function main(config) {
   );
 
 
-  // ---------- 香港 ----------
+  // =========================================================
+  // 13. 香港
+  // =========================================================
 
   addGroup(
     "MY-HK",
@@ -245,53 +313,142 @@ function main(config) {
     hkHome
   );
 
+
+  // =========================================================
+  // 14. 英国
+  // =========================================================
+
   addGroup(
     "MY-UK",
     uk
   );
-  
+
+  addGroup(
+    "MY-UK-HOME",
+    ukHome
+  );
+
+
+  // =========================================================
+  // 15. 台湾
+  // =========================================================
+
   addGroup(
     "MY-TW",
     tw
   );
-  
+
+  addGroup(
+    "MY-TW-HOME",
+    twHome
+  );
+
+
+  // =========================================================
+  // 16. 韩国
+  // =========================================================
+
   addGroup(
     "MY-KR",
     kr
   );
-  
+
+  addGroup(
+    "MY-KR-HOME",
+    krHome
+  );
+
+
+  // =========================================================
+  // 17. 德国
+  // =========================================================
+
   addGroup(
     "MY-DE",
     de
   );
-  
+
+  addGroup(
+    "MY-DE-HOME",
+    deHome
+  );
+
+
+  // =========================================================
+  // 18. 加拿大
+  // =========================================================
+
   addGroup(
     "MY-CA",
     ca
   );
-  
+
+  addGroup(
+    "MY-CA-HOME",
+    caHome
+  );
+
+
+  // =========================================================
+  // 19. 澳大利亚
+  // =========================================================
+
   addGroup(
     "MY-AU",
     au
   );
+
+  addGroup(
+    "MY-AU-HOME",
+    auHome
+  );
+
+
   // =========================================================
-  // 8. Firefox / Vivaldi 永久入口组
+  // 20. Firefox / Vivaldi 永久入口
   // =========================================================
 
   function buildBrowserCandidates() {
     const candidates = [
+
+      // =====================
+      // 家宽
+      // =====================
+
       "MY-US-HOME",
       "MY-SG-HOME",
       "MY-JP-HOME",
       "MY-HK-HOME",
+      "MY-UK-HOME",
+      "MY-TW-HOME",
+      "MY-KR-HOME",
+      "MY-DE-HOME",
+      "MY-CA-HOME",
+      "MY-AU-HOME",
+
+      // =====================
+      // 普通节点
+      // =====================
 
       "MY-US",
       "MY-SG",
       "MY-JP",
       "MY-HK",
+      "MY-UK",
+      "MY-TW",
+      "MY-KR",
+      "MY-DE",
+      "MY-CA",
+      "MY-AU",
+
+      // =====================
+      // 汇总组
+      // =====================
 
       "MY-HOME",
+      "MY-NON-HOME",
       "MY-ALL"
+
     ].filter(hasGroup);
 
     if (candidates.length > 0) {
@@ -309,6 +466,8 @@ function main(config) {
   });
 
 
+  // 当前 Vivaldi 实际上由 ZeroOmega + Listener 分流
+  // 这个组可以保留备用
   groups.push({
     name: "VIVALDI-PROXY",
     type: "select",
@@ -317,13 +476,15 @@ function main(config) {
 
 
   // =========================================================
-  // 9. 严格家宽 Listener 入口
+  // 21. 严格家宽 Listener
   //
-  // 核心：
-  // 有家宽 -> 只允许对应家宽组
-  // 无家宽 -> REJECT
+  // 有对应国家家宽：
+  //   -> MY-XX-HOME
   //
-  // 绝不降级到普通节点
+  // 没有：
+  //   -> REJECT
+  //
+  // 绝不自动退回普通节点
   // =========================================================
 
   function buildStrictHomeListener(homeGroup) {
@@ -335,6 +496,8 @@ function main(config) {
   }
 
 
+  // ---------- 美国 ----------
+
   groups.push({
     name: "MY-LISTENER-US-HOME",
     type: "select",
@@ -343,6 +506,8 @@ function main(config) {
     )
   });
 
+
+  // ---------- 新加坡 ----------
 
   groups.push({
     name: "MY-LISTENER-SG-HOME",
@@ -353,6 +518,8 @@ function main(config) {
   });
 
 
+  // ---------- 日本 ----------
+
   groups.push({
     name: "MY-LISTENER-JP-HOME",
     type: "select",
@@ -361,6 +528,8 @@ function main(config) {
     )
   });
 
+
+  // ---------- 香港 ----------
 
   groups.push({
     name: "MY-LISTENER-HK-HOME",
@@ -371,10 +540,76 @@ function main(config) {
   });
 
 
+  // ---------- 英国 ----------
+
+  groups.push({
+    name: "MY-LISTENER-UK-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-UK-HOME"
+    )
+  });
+
+
+  // ---------- 台湾 ----------
+
+  groups.push({
+    name: "MY-LISTENER-TW-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-TW-HOME"
+    )
+  });
+
+
+  // ---------- 韩国 ----------
+
+  groups.push({
+    name: "MY-LISTENER-KR-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-KR-HOME"
+    )
+  });
+
+
+  // ---------- 德国 ----------
+
+  groups.push({
+    name: "MY-LISTENER-DE-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-DE-HOME"
+    )
+  });
+
+
+  // ---------- 加拿大 ----------
+
+  groups.push({
+    name: "MY-LISTENER-CA-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-CA-HOME"
+    )
+  });
+
+
+  // ---------- 澳大利亚 ----------
+
+  groups.push({
+    name: "MY-LISTENER-AU-HOME",
+    type: "select",
+    proxies: buildStrictHomeListener(
+      "MY-AU-HOME"
+    )
+  });
+
+
   // =========================================================
-  // 10. 删除之前生成的同名组
+  // 22. 删除之前生成的同名组
   //
-  // 防止订阅刷新 / JS 重跑以后出现重复组
+  // 防止订阅刷新 / JS 重跑产生重复组
   // =========================================================
 
   const customNames = new Set(
@@ -387,15 +622,15 @@ function main(config) {
     );
 
 
-  // 把我们的动态组加入当前订阅
+  // 加入我们的动态组
   config["proxy-groups"].push(
     ...groups
   );
 
 
- // =========================================================
-  // 11. 保留当前订阅原始规则
-  //     但是删除原订阅最终 MATCH
+  // =========================================================
+  // 23. 保留当前订阅原始规则
+  //     但删除原订阅自己的最终 MATCH
   // =========================================================
 
   const originalRules =
@@ -403,14 +638,7 @@ function main(config) {
       ? config.rules
       : [];
 
-  // 保留原机场的所有正常分流规则，
-  // 只删除它自己的最终 MATCH。
-  //
-  // 例如：
-  // MATCH,DIRECT
-  // MATCH,Proxy
-  //
-  // 最终统一由我们自己的 MY-ALL 负责兜底。
+
   const preservedRules = originalRules.filter(rule => {
     if (typeof rule !== "string") {
       return true;
@@ -421,29 +649,65 @@ function main(config) {
 
 
   // =========================================================
-  // 12. 自定义进程规则放最前面
+  // 24. 自定义规则
   // =========================================================
 
-  
   config.rules = [
-    // Claude 独立 App → 美国家宽
-    "PROCESS-NAME,Claude.exe,MY-LISTENER-US-HOME",
-    // Edge 永远国内直连
-    "PROCESS-NAME,msedge.exe,DIRECT",
 
-    // Firefox 永远进入自己的代理选择组
-    "PROCESS-NAME,firefox.exe,FIREFOX-PROXY",
+    // =====================================================
+    // 最高优先级 DIRECT
+    // =====================================================
 
-    // Vivaldi 永远进入自己的代理选择组
-    //"PROCESS-NAME,vivaldi.exe,VIVALDI-PROXY",
-
-    // Bitwarden / Vaultwarden 强制直连
+    // Bitwarden / Vaultwarden
     "DOMAIN,mm.hhh999.top,DIRECT",
+
     "IP-CIDR,113.205.140.12/32,DIRECT,no-resolve",
     "IP-CIDR,219.152.54.195/32,DIRECT,no-resolve",
     "IP-CIDR,192.168.18.153/32,DIRECT,no-resolve",
 
+    "DOMAIN-SUFFIX,ipvtesting.hgtcgroup.com,DIRECT",
+
+
+    // =====================================================
+    // Claude 独立 App
+    //
+    // 强制美国家宽
+    //
+    // 有美国家宽 -> 使用
+    // 无美国家宽 -> REJECT
+    // =====================================================
+
+    "PROCESS-NAME,Claude.exe,MY-LISTENER-US-HOME",
+
+
+    // =====================================================
+    // Edge
+    // =====================================================
+
+    "PROCESS-NAME,msedge.exe,DIRECT",
+
+
+    // =====================================================
+    // Firefox
+    // =====================================================
+
+    "PROCESS-NAME,firefox.exe,FIREFOX-PROXY",
+
+
+    // =====================================================
+    // Vivaldi
+    //
+    // 不启用进程规则。
+    // 每个 Profile 由 ZeroOmega + Listener 控制。
+    // =====================================================
+
+    // "PROCESS-NAME,vivaldi.exe,VIVALDI-PROXY",
+
+
+    // =====================================================
     // 向日葵
+    // =====================================================
+
     "PROCESS-NAME,SunloginClient.exe,DIRECT",
     "PROCESS-NAME,SunloginService.exe,DIRECT",
     "PROCESS-NAME,SunloginRemote.exe,DIRECT",
@@ -456,27 +720,36 @@ function main(config) {
     "IP-CIDR,153.3.236.0/24,DIRECT,no-resolve",
     "IP-CIDR,103.46.128.0/22,DIRECT,no-resolve",
 
-    "DOMAIN-SUFFIX,ipvtesting.hgtcgroup.com,DIRECT",
 
-    // 保留融合订阅原本的分流规则
-    // 但已经删除它原来的 MATCH xxx
+    // =====================================================
+    // 保留融合订阅原来的分流规则
+    //
+    // 原来的 MATCH 已经删除
+    // =====================================================
+
     ...preservedRules,
+
 
     // =====================================================
     // 最终兜底
     //
-    // 所有前面没有匹配到的流量：
-    // Telegram / Discord / Google / GitHub / ChatGPT ...
-    // 统一进入 MY-ALL。
+    // 所有前面都没有匹配的：
+    // Telegram
+    // Discord
+    // Google
+    // GitHub
+    // ChatGPT
+    // ...
     //
-    // MY-ALL 中的实际节点仍然由你自己选择。
+    // 全部进入 MY-ALL
     // =====================================================
+
     "MATCH,MY-ALL"
   ];
 
 
   // =========================================================
-  // 13. 返回最终配置
+  // 25. 返回最终配置
   // =========================================================
 
   return config;
