@@ -1,7 +1,7 @@
 listeners:
-  # =========================
-  # 家宽
-  # =========================
+  # ==================================================
+  # 家宽 / 住宅
+  # ==================================================
 
   - name: listener-us-home
     type: mixed
@@ -27,10 +27,42 @@ listeners:
     port: 10004
     proxy: MY-LISTENER-HK-HOME
 
+  - name: listener-uk-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10005
+    proxy: MY-LISTENER-UK-HOME
 
-  # =========================
-  # 直连
-  # =========================
+  - name: listener-tw-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10006
+    proxy: MY-LISTENER-TW-HOME
+
+  - name: listener-kr-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10007
+    proxy: MY-LISTENER-KR-HOME
+
+  - name: listener-de-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10008
+    proxy: MY-LISTENER-DE-HOME
+
+  - name: listener-ca-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10009
+    proxy: MY-LISTENER-CA-HOME
+
+
+  # ==================================================
+  # DIRECT
+  #
+  # 10010 已经被直连占用
+  # ==================================================
 
   - name: listener-direct
     type: mixed
@@ -39,9 +71,22 @@ listeners:
     proxy: MY-DIRECT
 
 
-  # =========================
-  # 普通节点（排除家宽）
-  # =========================
+  # ==================================================
+  # 澳大利亚家宽
+  #
+  # 因为 10010 被 DIRECT 占用，所以放到 10011
+  # ==================================================
+
+  - name: listener-au-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10011
+    proxy: MY-LISTENER-AU-HOME
+
+
+  # ==================================================
+  # 普通节点
+  # ==================================================
 
   - name: listener-us
     type: mixed
@@ -66,9 +111,6 @@ listeners:
     listen: 127.0.0.1
     port: 10104
     proxy: MY-HK
-   # =========================
-  # 英国普通节点
-  # =========================
 
   - name: listener-uk
     type: mixed
@@ -76,21 +118,11 @@ listeners:
     port: 10105
     proxy: MY-UK
 
-
-  # =========================
-  # 台湾普通节点
-  # =========================
-
   - name: listener-tw
     type: mixed
     listen: 127.0.0.1
     port: 10106
     proxy: MY-TW
-
-
-  # =========================
-  # 韩国普通节点
-  # =========================
 
   - name: listener-kr
     type: mixed
@@ -98,32 +130,17 @@ listeners:
     port: 10107
     proxy: MY-KR
 
-
-  # =========================
-  # 德国普通节点
-  # =========================
-
   - name: listener-de
     type: mixed
     listen: 127.0.0.1
     port: 10108
     proxy: MY-DE
 
-
-  # =========================
-  # 加拿大普通节点
-  # =========================
-
   - name: listener-ca
     type: mixed
     listen: 127.0.0.1
     port: 10109
     proxy: MY-CA
-
-
-  # =========================
-  # 澳大利亚普通节点
-  # =========================
 
   - name: listener-au
     type: mixed
