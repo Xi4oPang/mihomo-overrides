@@ -1,6 +1,7 @@
 listeners:
+
   # ==================================================
-  # 家宽 / 住宅
+  # 北美
   # ==================================================
 
   - name: listener-us-home
@@ -8,6 +9,17 @@ listeners:
     listen: 127.0.0.1
     port: 10001
     proxy: MY-LISTENER-US-HOME
+
+  - name: listener-ca-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10009
+    proxy: MY-LISTENER-CA-HOME
+
+
+  # ==================================================
+  # 亚洲
+  # ==================================================
 
   - name: listener-sg-home
     type: mixed
@@ -27,12 +39,6 @@ listeners:
     port: 10004
     proxy: MY-LISTENER-HK-HOME
 
-  - name: listener-uk-home
-    type: mixed
-    listen: 127.0.0.1
-    port: 10005
-    proxy: MY-LISTENER-UK-HOME
-
   - name: listener-tw-home
     type: mixed
     listen: 127.0.0.1
@@ -45,23 +51,26 @@ listeners:
     port: 10007
     proxy: MY-LISTENER-KR-HOME
 
+
+  # ==================================================
+  # 欧洲主要国家
+  # ==================================================
+
+  - name: listener-uk-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10005
+    proxy: MY-LISTENER-UK-HOME
+
   - name: listener-de-home
     type: mixed
     listen: 127.0.0.1
     port: 10008
     proxy: MY-LISTENER-DE-HOME
 
-  - name: listener-ca-home
-    type: mixed
-    listen: 127.0.0.1
-    port: 10009
-    proxy: MY-LISTENER-CA-HOME
-
 
   # ==================================================
   # DIRECT
-  #
-  # 10010 已经被直连占用
   # ==================================================
 
   - name: listener-direct
@@ -72,9 +81,7 @@ listeners:
 
 
   # ==================================================
-  # 澳大利亚家宽
-  #
-  # 因为 10010 被 DIRECT 占用，所以放到 10011
+  # 澳大利亚
   # ==================================================
 
   - name: listener-au-home
@@ -85,65 +92,193 @@ listeners:
 
 
   # ==================================================
-  # 普通节点
+  # 欧洲扩展
   # ==================================================
 
-  - name: listener-us
+  - name: listener-fr-home
     type: mixed
     listen: 127.0.0.1
-    port: 10101
-    proxy: MY-US
+    port: 10012
+    proxy: MY-LISTENER-FR-HOME
 
-  - name: listener-sg
+  - name: listener-nl-home
     type: mixed
     listen: 127.0.0.1
-    port: 10102
-    proxy: MY-SG
+    port: 10013
+    proxy: MY-LISTENER-NL-HOME
 
-  - name: listener-jp
+  - name: listener-ch-home
     type: mixed
     listen: 127.0.0.1
-    port: 10103
-    proxy: MY-JP
+    port: 10014
+    proxy: MY-LISTENER-CH-HOME
 
-  - name: listener-hk
+  - name: listener-it-home
     type: mixed
     listen: 127.0.0.1
-    port: 10104
-    proxy: MY-HK
+    port: 10015
+    proxy: MY-LISTENER-IT-HOME
 
-  - name: listener-uk
+  - name: listener-es-home
     type: mixed
     listen: 127.0.0.1
-    port: 10105
-    proxy: MY-UK
+    port: 10016
+    proxy: MY-LISTENER-ES-HOME
 
-  - name: listener-tw
+  - name: listener-se-home
     type: mixed
     listen: 127.0.0.1
-    port: 10106
-    proxy: MY-TW
+    port: 10017
+    proxy: MY-LISTENER-SE-HOME
 
-  - name: listener-kr
+  - name: listener-no-home
     type: mixed
     listen: 127.0.0.1
-    port: 10107
-    proxy: MY-KR
+    port: 10018
+    proxy: MY-LISTENER-NO-HOME
 
-  - name: listener-de
+  - name: listener-fi-home
     type: mixed
     listen: 127.0.0.1
-    port: 10108
-    proxy: MY-DE
+    port: 10019
+    proxy: MY-LISTENER-FI-HOME
 
-  - name: listener-ca
+  - name: listener-dk-home
     type: mixed
     listen: 127.0.0.1
-    port: 10109
-    proxy: MY-CA
+    port: 10020
+    proxy: MY-LISTENER-DK-HOME
 
-  - name: listener-au
+  - name: listener-pl-home
     type: mixed
     listen: 127.0.0.1
-    port: 10110
-    proxy: MY-AU
+    port: 10021
+    proxy: MY-LISTENER-PL-HOME
+
+  - name: listener-ie-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10022
+    proxy: MY-LISTENER-IE-HOME
+
+  - name: listener-at-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10023
+    proxy: MY-LISTENER-AT-HOME
+
+  - name: listener-be-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10024
+    proxy: MY-LISTENER-BE-HOME
+
+  - name: listener-cz-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10025
+    proxy: MY-LISTENER-CZ-HOME
+
+
+  # ==================================================
+  # 亚洲扩展
+  # ==================================================
+
+  - name: listener-in-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10026
+    proxy: MY-LISTENER-IN-HOME
+
+  - name: listener-th-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10027
+    proxy: MY-LISTENER-TH-HOME
+
+  - name: listener-my-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10028
+    proxy: MY-LISTENER-MY-HOME
+
+  - name: listener-ph-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10029
+    proxy: MY-LISTENER-PH-HOME
+
+  - name: listener-id-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10030
+    proxy: MY-LISTENER-ID-HOME
+
+  - name: listener-vn-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10031
+    proxy: MY-LISTENER-VN-HOME
+
+
+  # ==================================================
+  # 大洋洲
+  # ==================================================
+
+  - name: listener-nz-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10032
+    proxy: MY-LISTENER-NZ-HOME
+
+
+  # ==================================================
+  # 拉美
+  # ==================================================
+
+  - name: listener-br-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10033
+    proxy: MY-LISTENER-BR-HOME
+
+  - name: listener-mx-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10034
+    proxy: MY-LISTENER-MX-HOME
+
+
+  # ==================================================
+  # 中东 / 其他常见
+  # ==================================================
+
+  - name: listener-ae-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10035
+    proxy: MY-LISTENER-AE-HOME
+
+  - name: listener-tr-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10036
+    proxy: MY-LISTENER-TR-HOME
+
+  - name: listener-ru-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10037
+    proxy: MY-LISTENER-RU-HOME
+
+  - name: listener-za-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10038
+    proxy: MY-LISTENER-ZA-HOME
+
+  - name: listener-il-home
+    type: mixed
+    listen: 127.0.0.1
+    port: 10039
+    proxy: MY-LISTENER-IL-HOME
