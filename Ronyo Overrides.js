@@ -1,5 +1,12 @@
-
 function main(config) {
+  // 基于旧工作区最后的 Ronyo Overrides.js 增量增强，不修改 DNS 或订阅源。
+  const SETTINGS = {
+    pinnedRegions: ["US", "SG", "JP", "HK", "UK"],
+    showAllAvailableRegions: false,  // true：所有有节点国家组都显示在顶层
+    economyMaxRate: 1,             // 只允许明确标注 <=1x 的非家宽节点
+    directDomesticVideo: true      // B站等国内视频网站直连；false 为保持 Firefox 代理优先
+  };
+
   config["find-process-mode"] = "always";
 
   // =====================================================
@@ -99,21 +106,25 @@ function main(config) {
 
   const groups = [];
 
-  function addOptionalGroup(name, nodes) {
+  function addOptionalGroup(name, nodes, visible = true) {
     if (nodes.length > 0) {
       groups.push({
         name,
         type: "select",
-        proxies: nodes
+        proxies: nodes,
+        hidden: !visible
       });
     }
   }
 
-  function addPermanentGroup(name, nodes) {
+  // 即使没有节点，仍保留一个隐身 REJECT 后端组，避免旧 Listener 的 proxy 找不到。
+  // hidden 仅控制 Clash Party 等客户端展示，不会禁用 Listener。
+  function addPermanentGroup(name, nodes, visible = true) {
     groups.push({
       name,
       type: "select",
-      proxies: nodes.length > 0 ? nodes : ["REJECT"]
+      proxies: nodes.length > 0 ? nodes : ["REJECT"],
+      hidden: !visible || nodes.length === 0
     });
   }
 
@@ -138,58 +149,104 @@ function main(config) {
   // 永久存在，防止 Ronyo Rule 找不到 MY-ALL
   addPermanentGroup("MY-ALL", all);
 
-  addOptionalGroup("MY-HOME", home);
-  addOptionalGroup("MY-NON-HOME", nonHome);
+  addOptionalGroup("MY-HOME", home, false);
+  addOptionalGroup("MY-NON-HOME", nonHome, false);
 
   groups.push({
     name: "MY-DIRECT",
     type: "select",
-    proxies: ["DIRECT"]
+    proxies: ["DIRECT"],
+    hidden: true
   });
 
   // =====================================================
-  // 7. 创建所有国家普通节点和 HOME 组
-  //
-  // MY-US
-  // MY-US-HOME
-  // MY-UK
-  // MY-UK-HOME
-  //
-  // 家宽组永久存在：
-  // 有家宽 -> 节点列表
-  // 没家宽 -> REJECT
+  // 7. 低倍率节点 / 节流业务组
   // =====================================================
 
-  // 这些国家的普通组被固定 Listener 引用
-  // 因此也必须永久存在
+  function readMultiplier(name) {
+    const values = [];
+    const patterns = [
+      /(?:^|[^A-Za-z0-9])(\d+(?:\.\d+)?)\s*(?:x|×|倍)(?=$|[^A-Za-z])/ig,
+      /(?:^|[^A-Za-z0-9])(?:x|×)\s*(\d+(?:\.\d+)?)(?=$|[^A-Za-z])/ig
+    ];
+    for (const regex of patterns) {
+      for (const m of name.matchAll(regex)) {
+        values.push(Number(m[1]));
+      }
+    }
+    // 同一节点标注多个倍率时取最大值，避免误放行。
+    return values.length ? Math.max(...values) : null;
+  }
+
+  const economyNodes = proxyNames.filter(name => {
+    const rate = readMultiplier(name);
+    return !isHome(name) && rate !== null && rate <= SETTINGS.economyMaxRate;
+  });
+
+  // 无明确低倍率节点则拒绝代理视频流量，不自动走昂贵节点。
+  addPermanentGroup("MY-LOW-COST", economyNodes, true);
+  addPermanentGroup("MY-STREAM", ["MY-LOW-COST"], economyNodes.length > 0);
+
+  // Telegram: separate visible selector. Default is MY-LOW-COST; users may
+  // select an individual eligible node in Clash Party without editing JS.
+  // Deliberately exclude unknown-rate, residential and >1x nodes.
+  // The REJECT fallback is retained even when the current subscription has no eligible node.
+  groups.push({
+    name: "TELEGRAM-PROXY",
+    type: "select",
+    proxies: economyNodes.length > 0
+      ? ["MY-LOW-COST", ...economyNodes]
+      : ["REJECT"],
+    hidden: false
+  });
+
+  // Steam/Epic/大型下载默认直连，确有需要可以手动切到低倍率。
+  addPermanentGroup(
+    "MY-DOWNLOAD",
+    economyNodes.length > 0 ? ["DIRECT", "MY-LOW-COST"] : ["DIRECT"],
+    true
+  );
+
+  // =====================================================
+  // 8. 创建国家组：可用组显示，无节点组隐藏但端口继续存在
+  // =====================================================
+
   const fixedNormalRegions = new Set([
-    "US", "SG", "JP", "HK", "UK",
-    "TW", "KR", "DE", "CA", "AU"
+    "US", "SG", "JP", "HK", "UK", "TW", "KR", "DE", "CA", "AU"
   ]);
+  const pinned = new Set(SETTINGS.pinnedRegions);
+  const availableNormalGroups = [];
+  const availableHomeGroups = [];
 
   for (const region of regions) {
     const normalNodes = proxyNames.filter(name =>
       isRegion(name, region) && !isHome(name)
     );
-
     const homeNodes = proxyNames.filter(name =>
       isRegion(name, region) && isHome(name)
     );
 
     const normalGroup = `MY-${region.code}`;
     const homeGroup = `MY-${region.code}-HOME`;
+    const show = SETTINGS.showAllAvailableRegions || pinned.has(region.code);
 
-    // 普通节点组
+    if (normalNodes.length) availableNormalGroups.push(normalGroup);
+    if (homeNodes.length) availableHomeGroups.push(homeGroup);
+
     if (fixedNormalRegions.has(region.code)) {
-      addPermanentGroup(normalGroup, normalNodes);
+      // 保留 10101-10110 的端口引用；无节点则后台 REJECT、前台隐藏。
+      addPermanentGroup(normalGroup, normalNodes, show);
     } else {
-      addOptionalGroup(normalGroup, normalNodes);
+      // 其余普通国家无固定端口；无节点就彻底不创建该组。
+      addOptionalGroup(normalGroup, normalNodes, show);
     }
-
-    // 家宽节点组：永久存在
-    // Listener 直接引用这一组
-    addPermanentGroup(homeGroup, homeNodes);
+    // 保留 38 个家宽端口；即使缺失节点也保留一个隐藏的 REJECT 组。
+    addPermanentGroup(homeGroup, homeNodes, show);
   }
+
+  // 两个导航菜单收纳所有真实存在的国家组，减少顶层冗余。
+  addPermanentGroup("MY-COUNTRIES", availableNormalGroups, true);
+  addPermanentGroup("MY-HOME-COUNTRIES", availableHomeGroups, true);
 
   // =====================================================
   // 8. Firefox / Vivaldi 备用代理组
@@ -244,7 +301,8 @@ function main(config) {
   groups.push({
     name: "VIVALDI-PROXY",
     type: "select",
-    proxies: buildBrowserCandidates()
+    proxies: buildBrowserCandidates(),
+    hidden: true
   });
 
   // =====================================================
@@ -255,34 +313,23 @@ function main(config) {
   // =====================================================
 
   const customNames = new Set(groups.map(g => g.name));
-
   [
-    "MY-ALL",
-    "MY-HOME",
-    "MY-NON-HOME",
-    "MY-DIRECT",
-    "FIREFOX-PROXY",
-    "VIVALDI-PROXY"
+    "MY-ALL", "MY-HOME", "MY-NON-HOME", "MY-DIRECT",
+    "MY-LOW-COST", "MY-STREAM", "MY-DOWNLOAD", "TELEGRAM-PROXY",
+    "MY-COUNTRIES", "MY-HOME-COUNTRIES",
+    "FIREFOX-PROXY", "VIVALDI-PROXY"
   ].forEach(name => customNames.add(name));
+  for (const region of regions) {
+    customNames.add(`MY-${region.code}`);
+    customNames.add(`MY-${region.code}-HOME`);
+  }
 
-  config["proxy-groups"] =
-    config["proxy-groups"].filter(g => {
-      if (!g || typeof g.name !== "string") {
-        return true;
-      }
-
-      // 删除新的同名组旧版本
-      if (customNames.has(g.name)) {
-        return false;
-      }
-
-      // 删除以前那层多余的 Listener 代理组
-      if (/^MY-LISTENER-[A-Z]{2}-HOME$/i.test(g.name)) {
-        return false;
-      }
-
-      return true;
-    });
+  config["proxy-groups"] = config["proxy-groups"].filter(g => {
+    if (!g || typeof g.name !== "string") return true;
+    if (customNames.has(g.name)) return false;
+    if (/^MY-LISTENER-[A-Z]{2}-HOME$/i.test(g.name)) return false;
+    return true;
+  });
 
   config["proxy-groups"].push(...groups);
 
@@ -303,30 +350,80 @@ function main(config) {
   });
 
   // =====================================================
-  // 11. 自定义分流规则
+  // 11. Telegram selector + streaming / 软件下载 / 基础直连规则
+  //     注意：Edge 和 Claude 先判定；媒体域名应在 Firefox 进程规则之前。
   // =====================================================
 
+  const streamDomains = [
+    // YouTube
+    "youtube.com", "youtu.be", "youtube-nocookie.com",
+    "googlevideo.com", "ytimg.com", "youtubei.googleapis.com",
+    // Netflix
+    "netflix.com", "nflxvideo.net", "nflximg.net", "nflxso.net", "nflxext.com",
+    // Disney+ / Hulu
+    "disneyplus.com", "disney-plus.net", "bamgrid.com", "hulu.com", "huluim.com",
+    // Twitch
+    "twitch.tv", "ttvnw.net", "jtvnw.net",
+    // TikTok
+    "tiktok.com", "tiktokv.com", "tiktokcdn.com", "byteoversea.com",
+    // Spotify
+    "spotify.com", "scdn.co", "spotifycdn.com"
+  ];
+
+  const domesticVideoDomains = [
+    "bilibili.com", "biliapi.com", "bilivideo.com", "b23.tv",
+    "iqiyi.com", "youku.com", "mgtv.com"
+  ];
+
+  const downloadDomains = [
+    // Steam 内容 CDN，而非整个 Steam 社区/商店
+    "steamcontent.com", "steamserver.net", "steamcdn-a.akamaihd.net",
+    // Windows/NVIDIA 大型更新与安装文件
+    "download.windowsupdate.com", "dl.delivery.mp.microsoft.com",
+    "download.microsoft.com", "download.nvidia.com"
+  ];
+
+  const streamRules = streamDomains.map(d => `DOMAIN-SUFFIX,${d},MY-STREAM`);
+  const domesticVideoRules = SETTINGS.directDomesticVideo
+    ? domesticVideoDomains.map(d => `DOMAIN-SUFFIX,${d},DIRECT`)
+    : [];
+  const downloadRules = downloadDomains.map(d => `DOMAIN-SUFFIX,${d},MY-DOWNLOAD`);
+
   config.rules = [
-    // Bitwarden / Vaultwarden 强制直连
+    // Bitwarden / Vaultwarden 强制直连（保持旧配置）
     "DOMAIN,mm.hhh999.top,DIRECT",
     "IP-CIDR,113.205.140.12/32,DIRECT,no-resolve",
     "IP-CIDR,219.152.54.195/32,DIRECT,no-resolve",
     "IP-CIDR,192.168.18.153/32,DIRECT,no-resolve",
     "DOMAIN-SUFFIX,ipvtesting.hgtcgroup.com,DIRECT",
 
-    // Claude 独立 App -> 美国家宽
+    // 必须放在媒体规则前：避免 Edge 的国内直连身份被改变。
+    "PROCESS-NAME,msedge.exe,DIRECT",
+    // Claude 独立 App -> 美国家宽；空组时拒绝，不会自动改用普通节点。
     "PROCESS-NAME,Claude.exe,MY-US-HOME",
 
-    // Edge -> DIRECT
-    "PROCESS-NAME,msedge.exe,DIRECT",
+    // Telegram Desktop selector: choose MY-LOW-COST or an eligible node in Clash Party.
+    // REJECT immediately after it blocks UDP fallback into expensive subscription rules.
+    "PROCESS-NAME,Telegram.exe,TELEGRAM-PROXY",
+    "PROCESS-NAME,Telegram.exe,REJECT",
 
-    // Firefox -> 代理组
+    // 重点：放在 Firefox 进程规则之前，才会按网站将视频切到低倍率。
+    ...domesticVideoRules,
+    ...downloadRules,
+    ...streamRules,
+
+    // 下载器/游戏启动器：默认直连，可在 MY-DOWNLOAD 手动选低倍率。
+    "PROCESS-NAME,steam.exe,MY-DOWNLOAD",
+    "PROCESS-NAME,EpicGamesLauncher.exe,MY-DOWNLOAD",
+    "PROCESS-NAME,Battle.net.exe,MY-DOWNLOAD",
+    "PROCESS-NAME,OneDrive.exe,MY-DOWNLOAD",
+
+    // Firefox 默认走 FIREFOX-PROXY，只有上面指定的域名例外。
     "PROCESS-NAME,firefox.exe,FIREFOX-PROXY",
 
-    // Vivaldi 不做进程规则
-    // 各 Profile 使用 ZeroOmega + Listener
+    // Vivaldi 继续使用 ZeroOmega + 固定 Listener；固定 proxy 不会重匹配以上规则。
 
-    // 向日葵强制直连
+    // 向日葵强制直连（保持旧配置）
     "PROCESS-NAME,SunloginClient.exe,DIRECT",
     "PROCESS-NAME,SunloginService.exe,DIRECT",
     "PROCESS-NAME,SunloginRemote.exe,DIRECT",
@@ -337,10 +434,8 @@ function main(config) {
     "IP-CIDR,153.3.236.0/24,DIRECT,no-resolve",
     "IP-CIDR,103.46.128.0/22,DIRECT,no-resolve",
 
-    // 保留机场其他规则
+    // 保留融合订阅原规则，不覆盖订阅原本分流（仅删除其 MATCH）。
     ...preservedRules,
-
-    // 最终兜底
     "MATCH,MY-ALL"
   ];
 
