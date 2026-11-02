@@ -1,4 +1,3 @@
-
 listeners:
   # ==================================================
   # 北美家宽
@@ -338,3 +337,14 @@ listeners:
     listen: 127.0.0.1
     port: 10110
     proxy: MY-AU
+
+  # ==================================================
+  # vNext 新增：低倍率专用端口（适合 Vivaldi / AdsPower）
+  # 无合格节点时通过 MY-LOW-COST -> REJECT 拒绝连接，不会使用高倍率
+  # ==================================================
+
+  - name: listener-lowcost
+    type: mixed
+    listen: 127.0.0.1
+    port: 10111
+    proxy: MY-LOW-COST
