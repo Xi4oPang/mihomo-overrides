@@ -9,6 +9,12 @@ function main(config) {
 
   config["find-process-mode"] = "always";
 
+  // 保留手动选中节点，避免 Clash Party 重启后恢复为其他出口。
+  // 当所选节点从订阅中消失时，AI 组默认回到 REJECT，不自动换 IP。
+  config.profile = (config.profile && typeof config.profile === "object" && !Array.isArray(config.profile))
+    ? config.profile : {};
+  config.profile["store-selected"] = true;
+
   // =====================================================
   // 1. 读取 Sub-Store 融合后的真实节点
   // =====================================================
@@ -200,6 +206,34 @@ function main(config) {
     hidden: false
   });
 
+  // =====================================================
+  // AI 固定出口：Codex / Gemini (含 Antigravity/agy) / Claude
+  // 支持三款独立选择，也可以统一选择 AI-STABLE-PROXY 共用一个出口。
+  // 各组第一项均为 REJECT，且默认 REJECT：所选具体节点消失时
+  // 不会静默切换到其它节点或流媒体低倍率组。
+  // =====================================================
+  const usRegion = regions.find(r => r.code === "US");
+  const aiUsNodes = proxyNames.filter(name => isRegion(name, usRegion));
+  const aiCandidates = [
+    ...aiUsNodes.filter(isHome),
+    ...aiUsNodes.filter(name => !isHome(name))
+  ];
+
+  function addStableAIGroup(name, withShared) {
+    groups.push({
+      name,
+      type: "select",
+      proxies: ["REJECT", ...(withShared ? ["AI-STABLE-PROXY"] : []), ...aiCandidates],
+      "default-selected": "REJECT",
+      hidden: false
+    });
+  }
+
+  addStableAIGroup("AI-STABLE-PROXY", false);
+  addStableAIGroup("CODEX-PROXY", true);
+  addStableAIGroup("GEMINI-PROXY", true);
+  addStableAIGroup("CLAUDE-PROXY", true);
+
   // Steam/Epic/大型下载默认直连，确有需要可以手动切到低倍率。
   addPermanentGroup(
     "MY-DOWNLOAD",
@@ -316,6 +350,7 @@ function main(config) {
   [
     "MY-ALL", "MY-HOME", "MY-NON-HOME", "MY-DIRECT",
     "MY-LOW-COST", "MY-STREAM", "MY-DOWNLOAD", "TELEGRAM-PROXY",
+    "AI-STABLE-PROXY", "CODEX-PROXY", "GEMINI-PROXY", "CLAUDE-PROXY",
     "MY-COUNTRIES", "MY-HOME-COUNTRIES",
     "FIREFOX-PROXY", "VIVALDI-PROXY"
   ].forEach(name => customNames.add(name));
@@ -350,8 +385,8 @@ function main(config) {
   });
 
   // =====================================================
-  // 11. Telegram selector + streaming / 软件下载 / 基础直连规则
-  //     注意：Edge 和 Claude 先判定；媒体域名应在 Firefox 进程规则之前。
+  // 11. Codex / Gemini(AGY) / Claude + Telegram / 流媒体 / 下载
+  //     注意：Edge 首先判定；AI 域名/媒体域名均在 Firefox 进程规则之前。
   // =====================================================
 
   const streamDomains = [
@@ -397,15 +432,59 @@ function main(config) {
     "IP-CIDR,192.168.18.153/32,DIRECT,no-resolve",
     "DOMAIN-SUFFIX,ipvtesting.hgtcgroup.com,DIRECT",
 
-    // 必须放在媒体规则前：避免 Edge 的国内直连身份被改变。
+    // Edge 强制国内直连，优先级高于 AI 域名规则（沿用用户设定）。
     "PROCESS-NAME,msedge.exe,DIRECT",
-    // Claude 独立 App -> 美国家宽；空组时拒绝，不会自动改用普通节点。
-    "PROCESS-NAME,Claude.exe,MY-US-HOME",
+
+    // Codex CLI: native codex.exe。若由 IDE 扩展其它进程发送，需看连接日志补充。
+    "PROCESS-NAME,codex.exe,CODEX-PROXY",
+    "PROCESS-NAME,codex.exe,REJECT",
+
+    // Antigravity IDE/App/CLI（agy），不包含泛用 node.exe / Code.exe。
+    "PROCESS-NAME,agy.exe,GEMINI-PROXY",
+    "PROCESS-NAME,agy.exe,REJECT",
+    "PROCESS-NAME,Antigravity.exe,GEMINI-PROXY",
+    "PROCESS-NAME,Antigravity.exe,REJECT",
+    "PROCESS-NAME,Antigravity IDE.exe,GEMINI-PROXY",
+    "PROCESS-NAME,Antigravity IDE.exe,REJECT",
+    "PROCESS-NAME,gemini.exe,GEMINI-PROXY",
+    "PROCESS-NAME,gemini.exe,REJECT",
+
+    // Claude Desktop + 原生 Claude Code CLI (claude.exe)。
+    "PROCESS-NAME,Claude.exe,CLAUDE-PROXY",
+    "PROCESS-NAME,Claude.exe,REJECT",
 
     // Telegram Desktop selector: choose MY-LOW-COST or an eligible node in Clash Party.
     // REJECT immediately after it blocks UDP fallback into expensive subscription rules.
     "PROCESS-NAME,Telegram.exe,TELEGRAM-PROXY",
     "PROCESS-NAME,Telegram.exe,REJECT",
+
+    // CLI 可能由 node.exe、IDE 扩展宿主进程发请求；只按 AI API/站点域名分流，
+    // 不能把所有 node.exe / Code.exe 强制代理（会影响其它项目）。
+    // 不匹配整个 googleapis.com 或 chatgpt.com（避免误伤其它业务）。
+    "DOMAIN,generativelanguage.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,cloudcode-pa.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,cloudaicompanion.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,businessaicode.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,businessaicode.us.rep.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,businessaicode.eu.rep.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,businessaicode.mtls.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,aicode.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,daily-cloudcode-pa.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,aiplatform.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,aiplatform.us.rep.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,aiplatform.eu.rep.googleapis.com,GEMINI-PROXY",
+    "DOMAIN,discoveryengine.googleapis.com,GEMINI-PROXY",
+    "DOMAIN-SUFFIX,gemini.google.com,GEMINI-PROXY",
+    "DOMAIN-SUFFIX,antigravity.google,GEMINI-PROXY",
+    "DOMAIN-SUFFIX,antigravity.google.com,GEMINI-PROXY",
+
+    // Claude Code API、桌面/网页；Claude 网页流量也单独归组。
+    "DOMAIN,api.anthropic.com,CLAUDE-PROXY",
+    "DOMAIN-SUFFIX,claude.ai,CLAUDE-PROXY",
+    "DOMAIN-SUFFIX,claude.com,CLAUDE-PROXY",
+
+    // 若 Codex 使用 ChatGPT 登录，模型接口与 ChatGPT 网页共用主机名，
+    // 因此只按 codex.exe 精确匹配，不强制将整个 chatgpt.com 划到 CODEX。
 
     // 重点：放在 Firefox 进程规则之前，才会按网站将视频切到低倍率。
     ...domesticVideoRules,
